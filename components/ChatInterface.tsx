@@ -13,6 +13,7 @@ import {
   EAIStateLike,
   quickCoreIntegrityCheck,
 } from '../utils/eaiLearnAdapter';
+import { getEAICore } from '../utils/ssotParser';
 
 // --- MOOD ENGINE CONFIGURATION ---
 type Theme = {
@@ -201,6 +202,14 @@ const ChatInterface: React.FC = () => {
       level: null,
       grade: null
   });
+  
+  // Dynamic Versioning from SSOT
+  const [ssotVersion, setSsotVersion] = useState<string>('0.0.0');
+
+  useEffect(() => {
+      const core = getEAICore(language);
+      setSsotVersion(core.metadata.version);
+  }, [language]);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const toolboxRef = useRef<HTMLDivElement>(null);
@@ -412,7 +421,7 @@ INSTRUCTION: Remain in the role appropriate for this level throughout the ENTIRE
       setCurrentAnalysis(response.analysis);
       setCurrentMechanical(response.mechanical);
 
-      const validation = validateAnalysisAgainstSSOT(response.analysis);
+      const validation = validateAnalysisAgainstSSOT(response.analysis, language);
       if (!validation.ok) {
           console.warn("SSOT Mismatch detected:", validation);
       }
@@ -515,7 +524,7 @@ INSTRUCTION: Remain in the role appropriate for this level throughout the ENTIRE
                     <div className={`w-8 h-8 ${currentTheme.accent} rounded flex items-center justify-center font-bold text-white ${currentTheme.glow} transition-all duration-[2000ms]`}>
                         EAI
                     </div>
-                    <span className="font-bold tracking-tight text-white">Studio v12.3</span>
+                    <span className="font-bold tracking-tight text-white">Studio v{ssotVersion}</span>
                  </div>
                  <button 
                     onClick={handleLanguageToggle}
@@ -573,7 +582,7 @@ INSTRUCTION: Remain in the role appropriate for this level throughout the ENTIRE
         <div className={`h-14 border-b ${currentTheme.border} flex items-center justify-between px-4 lg:px-6 backdrop-blur-md sticky top-0 z-20 bg-opacity-80 ${currentTheme.sidebar} transition-colors duration-[2000ms]`}>
             <div className="flex items-center gap-2 lg:hidden">
                 <div className={`w-6 h-6 ${currentTheme.accent} rounded flex items-center justify-center font-bold text-white text-xs`}>EAI</div>
-                <span className="font-bold text-sm text-white">Studio</span>
+                <span className="font-bold text-sm text-white">Studio v{ssotVersion}</span>
             </div>
             
             <div className="hidden lg:flex items-center gap-3">

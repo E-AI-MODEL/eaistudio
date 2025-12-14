@@ -1,4 +1,4 @@
-import { EAI_CORE } from './ssotParser';
+import { EAI_CORE, getEAICore } from './ssotParser';
 import type { EAIAnalysis, MechanicalState } from '../types';
 
 // =========================
@@ -115,8 +115,16 @@ export function updateStateFromAnalysis(
   if (currentPhase) {
       nextBands.P = currentPhase;
   }
+  
+  // 4.4 Secondary Dimensions (CRITICAL UPDATE)
+  (analysis.secondary_dimensions ?? []).forEach((bandId) => {
+      const dim = extractDimensionFromBandId(bandId);
+      if (dim) {
+          (nextBands as any)[dim] = bandId;
+      }
+  });
 
-  // 4.4 Primary band: voorkeur TD, dan C, anders wat er is
+  // 4.5 Primary band: voorkeur TD, dan C, anders wat er is
   const primaryBand =
     (analysis.task_densities && analysis.task_densities[0]) ||
     (analysis.coregulation_bands && analysis.coregulation_bands[0]) ||
@@ -169,19 +177,21 @@ export interface SSOTValidationResult {
 /**
  * Checkt of alle bands en commands die Gemini teruggeeft
  * ook daadwerkelijk in de SSOT voorkomen (vergelijkbaar met quickIntegrityCheck).
+ * Nu met taal-support.
  */
-export function validateAnalysisAgainstSSOT(analysis: EAIAnalysis): SSOTValidationResult {
+export function validateAnalysisAgainstSSOT(analysis: EAIAnalysis, language: 'nl' | 'en' = 'nl'): SSOTValidationResult {
+  const core = getEAICore(language); // Get correct core based on language
   const knownBandIds = new Set<string>();
   const knownCommands = new Set<string>();
 
-  // Vul sets uit EAI_CORE (zie ssotParser.ts)
-  EAI_CORE.rubrics.forEach((rubric) => {
+  // Vul sets uit de taal-specifieke core
+  core.rubrics.forEach((rubric) => {
     (rubric.bands ?? []).forEach((band) => {
       if (band.band_id) knownBandIds.add(band.band_id);
     });
   });
 
-  EAI_CORE.commands.forEach((cmd) => {
+  core.commands.forEach((cmd) => {
     if (cmd.command) knownCommands.add(cmd.command);
   });
 
@@ -189,6 +199,7 @@ export function validateAnalysisAgainstSSOT(analysis: EAIAnalysis): SSOTValidati
     ...(analysis.task_densities ?? []),
     ...(analysis.coregulation_bands ?? []),
     ...(analysis.process_phases ?? []),
+    ...(analysis.secondary_dimensions ?? []), // Added missing secondary dimensions check
   ].filter(Boolean);
 
   const unknownBands = candidateBands.filter((id) => !knownBandIds.has(id as string));

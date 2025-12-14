@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Chat, Type, Schema } from "@google/genai";
 import { SYSTEM_INSTRUCTION_NL, SYSTEM_INSTRUCTION_EN } from "../constants";
 import { EAIAnalysis, MechanicalState, LearnerProfile, CognitiveMode } from "../types";
@@ -62,7 +61,7 @@ const responseSchema: Schema = {
         },
         reasoning: {
           type: Type.STRING,
-          description: "Brief internal logic explaining why this specific band and fix were chosen based on the SSOT.",
+          description: "Brief rationale explaining how the model mapped the user input to the specific SSOT band (selection rationale), not internal thought process.",
         },
         current_profile: {
           type: Type.OBJECT,

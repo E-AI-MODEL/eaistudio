@@ -83,7 +83,8 @@ const Dashboard: React.FC<DashboardProps> = ({ analysis, mechanical, isOpen, onC
       learner_behavior: language === 'en' ? 'Learner Behavior:' : 'Leerling gedrag:',
       principle: language === 'en' ? 'Principle:' : 'Principe:',
       intervention_label: language === 'en' ? 'Intervention:' : 'Interventie:',
-      internal_logic: language === 'en' ? 'Internal Logic' : 'Internal Logic',
+      // RENAMED HERE:
+      internal_logic: language === 'en' ? 'SSOT Mapping Rationale' : 'SSOT Selectie Rationale',
       waiting: language === 'en' ? '> Waiting for stream...' : '> Waiting for stream...',
       neural_state: language === 'en' ? 'Neural State' : 'Neurale Status',
       epistemic_integrity: language === 'en' ? 'Epistemic Integrity' : 'Epistemische Integriteit',

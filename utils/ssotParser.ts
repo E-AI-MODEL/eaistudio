@@ -1,4 +1,5 @@
-import { EAI_SSOT_JSON } from '../constants';
+
+import { EAI_SSOT_JSON_NL, EAI_SSOT_JSON_EN } from '../constants';
 
 // Define types for the parsed SSOT structure
 export interface SSOTCommand {
@@ -33,10 +34,14 @@ export interface SSOTStructure {
   };
 }
 
-// The Kernel Logic: Parsing the raw JSON string into a usable engine
-export const parseSSOT = (): SSOTStructure => {
+// Internal cache
+let cachedCoreNL: SSOTStructure | null = null;
+let cachedCoreEN: SSOTStructure | null = null;
+
+// The Parser Logic
+const parseJSON = (jsonString: string): SSOTStructure => {
   try {
-    const raw = JSON.parse(EAI_SSOT_JSON);
+    const raw = JSON.parse(jsonString);
     
     // Extract Commands
     const commandsObj = raw.command_library?.commands || {};
@@ -84,5 +89,16 @@ export const parseSSOT = (): SSOTStructure => {
   }
 };
 
-// Singleton instance of the parsed core
-export const EAI_CORE = parseSSOT();
+// Dynamic Getter
+export const getEAICore = (lang: 'nl' | 'en' = 'nl'): SSOTStructure => {
+    if (lang === 'en') {
+        if (!cachedCoreEN) cachedCoreEN = parseJSON(EAI_SSOT_JSON_EN);
+        return cachedCoreEN;
+    } else {
+        if (!cachedCoreNL) cachedCoreNL = parseJSON(EAI_SSOT_JSON_NL);
+        return cachedCoreNL;
+    }
+};
+
+// Legacy fallback for components that expect a static export (defaults to NL)
+export const EAI_CORE = getEAICore('nl'); 

@@ -1,3 +1,4 @@
+
 export interface LearnerProfile {
   name: string | null;
   subject: string | null; // Vak
@@ -11,6 +12,7 @@ export interface EAIAnalysis {
   process_phases: string[]; 
   coregulation_bands: string[]; 
   task_densities: string[]; 
+  secondary_dimensions: string[]; // NEW: For V, T, E, L rubrics
   active_fix: string | null; 
   reasoning: string;
   current_profile: LearnerProfile;
